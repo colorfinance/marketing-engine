@@ -1,0 +1,86 @@
+module.exports = {
+  // Rate limits per platform (max requests per time window)
+  limits: {
+    twitter: {
+      postsPerDay: 100,
+      requestsPer15Min: 900,
+      retryAfterSeconds: 15 * 60
+    },
+    reddit: {
+      requestsPerMinute: 60,
+      requestsPer10Minutes: 300,
+      retryAfterSeconds: 60
+    },
+    facebook: {
+      requestsPerHour: 200,
+      requestsPerDay: 5000,
+      retryAfterSeconds: 3600
+    },
+    linkedin: {
+      requestsPerDay: 100,
+      retryAfterSeconds: 24 * 3600
+    }
+  },
+
+  // Content generation settings
+  content: {
+    defaultLength: {
+      twitter: 140, // Keep under 280, but aim for 140 for retweets
+      reddit: 500,
+      facebook: 300,
+      linkedIn: 300
+    },
+    hashtags: {
+      maxPerPost: {
+        twitter: 3,
+        reddit: 0, // Reddit doesn't use hashtags
+        facebook: 5,
+        linkedIn: 5
+      }
+    },
+    variationsPerPost: 3, // Generate 3 variations, pick best
+    cacheExpiryDays: 14
+  },
+
+  // Scheduling settings
+  scheduling: {
+    defaultTimezone: 'Australia/Darwin',
+    dailyPostingWindows: [
+      { start: '09:00', end: '11:00' },   // Morning
+      { start: '14:00', end: '16:00' },   // Afternoon
+      { start: '19:00', end: '21:00' }    // Evening
+    ],
+    minMinutesBetweenPosts: 30,
+    maxPostsPerDay: 20
+  },
+
+  // Monitoring settings
+  monitoring: {
+    checkIntervalMinutes: 5,
+    commentResponseDelayMinutes: 2, // Wait before responding
+    maxAutoRepliesPerHour: 10,
+    keywordsToMonitor: ['help', 'question', 'how', '?']
+  },
+
+  // Safety settings
+  safety: {
+    requireManualApprovalFor: [
+      'negative_sentiment', // Require human review for negative replies
+      'controversial_topics', // Topics that might be sensitive
+      'high_profile_users' // Important accounts
+    ],
+    maxAutoActionsPerHour: 50,
+    autoPauseOnErrors: 5, // Pause after 5 consecutive errors
+    escalationThreshold: 3 // Escalate to human after 3 failed attempts
+  },
+
+  // LLM selection (in order of preference, cheapest first)
+  llmPriority: [
+    'grok_4.1_fast',     // $0.20/$0.50 per million - cheapest
+    'gemini_2.5_lite',   // $0.075/$0.30 per million
+    'claude_haiku_3.5',  // $1/$5 per million
+    'gpt_4o_mini',       // $0.25/$2 per million
+    'gpt_4o',           // $5/$15 per million - highest quality
+    'claude_sonnet_4'   // $3/$15 per million - fallback
+  ]
+};
